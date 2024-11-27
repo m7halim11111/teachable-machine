@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teachable Machine Image Classification</title>
+    <link rel="stylesheet" href="ImageClassification.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Add Google Fonts link for an attractive font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://apis.google.com/js/platform.js"></script>
+   
+</head>
+
+<body>
+    <!-- Add the title here, just after the opening body tag -->
+    <h1 class="page-title">IMAGE CLASSIFICATION</h1>
+
+    <!-- Classes Section -->
+    <div class="classes-section">
+        <h4>CLASSES</h4>
+        <div id="classes-container" class="classes-container">
+            <!-- Initial Class Card -->
+            <div class="class-card">
+                <div class="input-container">
+                    <input type="text" class="class-title" placeholder="Class Name">
+                    <div class="more-icon-container">
+                        <span class="more-icon">⋮</span>
+                        <div class="dropdown-menu">
+                            <button class="dropdown-item" onclick="deleteClass(this)">Delete Class</button>
+                            <button class="dropdown-item" onclick="disableClass(this)">Disable Class</button>
+                            <button class="dropdown-item" onclick="removeAllSamples(this)">Remove All Samples</button>
+                            <button class="dropdown-item" onclick="downloadSamples(this)">Download Samples</button>
+                            <button class="dropdown-item" onclick="saveSamplesToDrive(this)">Save Samples to Drive</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="image-samples">
+                    <p>Add Image Samples</p>
+                    <button class="webcam-button">Webcam</button>
+                    <button class="upload-button">Upload</button>
+                    <input type="file" class="upload-input" accept="image/*" multiple style="display:none;">
+                </div>
+            </div>
+        </div>
+        <button id="add-class-button" class="add-class-button">+ Add a class</button>
+    </div>
+
+
+
+
+
+
+
+
+
+
+    <!-- Training Section -->
+    <div class="training-section">
+        <h4>TRAINING</h4>
+        <div class="training-card">
+            <button id="train-model-button" class="train-model-button">Train Model</button>
+            <div class="advanced-section">
+                <div class="advanced-header">
+                    <span>Advanced</span>
+                    <span class="arrow-icon">&#9650;</span>
+                </div>
+                <div class="advanced-content">
+                    <div class="parameter-group">
+                        <label for="epochs">Epochs:</label>
+                        <div class="input-with-controls">
+                            <input type="number" id="epochs" value="50" min="1">
+                            <div class="input-controls">
+                                <button class="control-btn increment">&#9650;</button>
+                                <button class="control-btn decrement">&#9660;</button>
+                            </div>
+                        </div>
+                        <span class="info-icon" data-tooltip="epochs">?</span>
+                    </div>
+                    <div class="parameter-group">
+                        <label for="batch-size">Batch Size:</label>
+                        <div class="input-with-controls">
+                            <select id="batch-size">
+                                <option value="16">16</option>
+                                <option value="32">32</option>
+                                <option value="64">64</option>
+                                <option value="128">128</option>
+                                <option value="256">256</option>
+                                <option value="512">512</option>
+                            </select>
+                        </div>
+                        <span class="info-icon" data-tooltip="batch-size">?</span>
+                    </div>
+                    <div class="parameter-group">
+                        <label for="learning-rate">Learning Rate:</label>
+                        <div class="input-with-controls">
+                            <input type="number" id="learning-rate" value="0.001" step="0.001" min="0">
+                            <div class="input-controls">
+                                <button class="control-btn increment">&#9650;</button>
+                                <button class="control-btn decrement">&#9660;</button>
+                            </div>
+                        </div>
+                        <span class="info-icon" data-tooltip="learning-rate">?</span>
+                    </div>
+
+                    <!-- New GAN enhancement option -->
+                    <div class="parameter-group">
+                        <label for="gan-enhance">Enhance Images:</label>
+                        <div class="radio-toggle">
+                            <input type="radio" id="gan-on" name="gan-enhance" value="on">
+                            <label for="gan-on">On</label>
+                            <input type="radio" id="gan-off" name="gan-enhance" value="off" checked>
+                            <label for="gan-off">Off</label>
+                        </div>
+                        <span class="info-icon" data-tooltip="gan-enhance">?</span>
+                    </div>
+
+                    <button id="reset-defaults" class="reset-defaults-button">Reset Defaults</button>
+                    <button id="under-the-hood" class="under-the-hood-button">Under the hood</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="epochs-tooltip" class="tooltip">
+        <h4>Epochs</h4>
+        <p>One epoch means that each and every sample in the training dataset has been fed through the training model at least once.</p>
+        <P> If your epochs are set to 50, for example, it means that the model will work through the entire training dataset 50 times.</P>
+        <P>Generally the larger the number, the better your model will learn to predict the data.</P>
+        <p>You probably want to tweak (usually increase) this number until you get good predictive results with your model.</p>
+    </div>
+    
+    <div id="batch-size-tooltip" class="tooltip">
+        <h4>Batch Size</h4>
+        <p>A batch is a set of samples used in one iteration of training.</p>
+        <p> For example, let's say that you have 80 images and you choose a batch size of 16.</p>
+        <P> This means the data will be split into 80 / 16 = 5 batches. Once all 5 batches have been fed through the model, exactly one epoch will be complete.</P>
+        <p>You probably won't need to tweak this number to get good training results.</p>
+    </div>
+    
+    <div id="learning-rate-tooltip" class="tooltip">
+        <h4>Learning Rate</h4>
+        <p>Be careful tweaking this number! Even small differences can have huge effects on how well your model learns.</p>
+    </div>
+
+
+
+
+
+    <!-- Preview Section -->
+    <div class="preview-section">
+        <div class="preview-card">
+            <div class="preview-header">
+                <h4>PREVIEW</h4>
+                <button class="export-model-button">Export Model</button>
+            </div>
+            <div class="input-toggle">
+                <span>Input</span>
+                <label class="switch">
+                    <input type="checkbox" id="input-toggle" checked>
+                    <span class="slider round"></span>
+                </label>
+                <select id="input-source">
+                    <option value="file">File</option>
+                    <option value="webcam">Webcam</option>
+                </select>
+            </div>
+            <div class="preview-upload" id="file-upload-area">
+                <div class="upload-placeholder">
+                    <!-- Replace with file upload icon from Font Awesome -->
+                    <i class="fas fa-folder-open fa-2x"></i>
+                    <p>Choose images from your files,<br>or drag & drop here</p>
+                </div>
+            </div>
+            <div class="preview-upload" id="drive-upload-area">
+                <!-- Replace with Google Drive icon from Font Awesome -->
+                <i class="fab fa-google-drive fa-2x"></i>
+                <p>Import images from<br>Google Drive</p>
+            </div>
+            <div class="preview-image-container">
+                <img id="preview-image"/>
+            </div>
+            <div class="preview-output">
+                <h4>Output</h4>
+                <div id="output-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="ImageClassification.js"></script>
+</body>
+</html>

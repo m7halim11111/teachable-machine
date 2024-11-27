@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upscaling and Enhancement</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        .result img {
+            max-width: 500px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Image Upscaling and Enhancement</h1>
+    <p>Upload an image to enhance and upscale its resolution using ESRGAN.</p>
+    <form id="uploadForm" enctype="multipart/form-data" method="post" action="/upload/">
+        <label for="file">Choose an image:</label><br><br>
+        <input type="file" id="file" name="file" accept="image/*" required><br><br>
+        <button type="submit">Upload and Enhance</button>
+    </form>
+
+    <div class="result" id="result">
+        <h2>Enhanced Image:</h2>
+        <p id="message"></p>
+        <img id="enhancedImage" src="" alt="Enhanced image will appear here">
+    </div>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const resultDiv = document.getElementById('result');
+        const message = document.getElementById('message');
+        const enhancedImage = document.getElementById('enhancedImage');
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            message.textContent = "Processing image, please wait...";
+            enhancedImage.src = "";
+
+            const response = await fetch('/upload/', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                message.textContent = data.message;
+                enhancedImage.src = data.output_path;
+            } else {
+                message.textContent = "Failed to process image.";
+            }
+        };
+    </script>
+</body>
+
+</html>
